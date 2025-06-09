@@ -61,28 +61,33 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Fluxor" Version="6.6.0" />
+        <PackageReference Include="Fluxor.Blazor.Web" Version="6.6.0" />
+        <PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="6.6.0" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Core\Models\" />
       <Folder Include="Core\Commons\" />
       <Folder Include="Domain\" />
       <Folder Include="Domain\Interfaces\" />
       <Folder Include="Domain\Specifications\" />
       <Folder Include="Infrastructure\Data\" />
-      <Folder Include="Infrastructure\Services\" />
-      <Folder Include="Infrastructure\Repositories\" />
       <Folder Include="Mobile\" />
-      <Folder Include="App\" />
       <Folder Include="Services\Interfaces\" />
       <Folder Include="Services\DTOs\" />
       <Folder Include="Services\Mappings\" />
-      <Folder Include="Web\Components\" />
-      <Folder Include="Web\Stores\" />
-      <Folder Include="Web\Pages\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiXaml Update="App\App.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="App\MainPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
     </ItemGroup>
 
 </Project>
