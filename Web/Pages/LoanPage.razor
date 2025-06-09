@@ -1,0 +1,56 @@
+﻿@page "/loans"
+@using Fluxor
+@using LoanManagement.Web.Stores.Loans.Actions
+@using LoanManagement.Web.Stores.Loans.State
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@inject IDispatcher Dispatcher
+@inject IState<LoanState> LoanState
+
+<PageTitle>Loan Management</PageTitle>
+
+<div class="flex min-h-screen w-full bg-gray-50">
+    <!-- Sidebar -->
+    <Sidebar />
+    
+    <!-- Main Content -->
+    <div class="flex flex-1 flex-col">
+        <header class="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-6">
+            <h1 class="text-xl font-semibold text-gray-800">Loan Management</h1>
+            <div class="ml-auto flex items-center gap-3">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+                    <input type="search"
+                           placeholder="Search loans..."
+                           class="w-64 rounded-lg bg-gray-50 border-gray-200 pl-8 focus:ring-blue-500 focus:border-blue-500 p-2 border"
+                           @bind="LoanState.Value.SearchTerm"
+                           @oninput="OnSearch" />
+                </div>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded flex items-center"
+                        @onclick="ShowNewLoanDialog">
+                    <i class="fas fa-book mr-2 h-4 w-4"></i> New Loan
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 p-6">
+<Component />        </main>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Dispatcher.Dispatch(new FetchLoansAction());
+    }
+
+    private void OnSearch(ChangeEventArgs e)
+    {
+        Dispatcher.Dispatch(new FetchLoansAction(e.Value?.ToString()));
+    }
+
+    private void ShowNewLoanDialog()
+    {
+        // Implementation for showing new loan dialog
+    }
+}
