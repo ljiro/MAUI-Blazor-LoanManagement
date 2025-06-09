@@ -1,0 +1,288 @@
+﻿<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-4xl">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-credit-card h-6 w-6"></i>
+                        @Loan.Id - @Loan.ClientName
+                        <span class="ml-2 border-gray-300 text-gray-600 border rounded-full px-2 py-1 text-xs">
+                            @Loan.Type
+                        </span>
+                    </h2>
+                    <p class="text-gray-500">
+                        Comprehensive loan details and payment history
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 grid gap-8">
+            <!-- Loan Overview Card -->
+            <div class="border-gray-200 shadow-sm border rounded-lg">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-info-circle h-5 w-5 text-blue-500"></i>
+                        Loan Overview
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-full bg-blue-50">
+                                <i class="fas fa-dollar-sign h-5 w-5 text-blue-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Loan Amount</p>
+                                <p class="font-medium text-gray-800">₱@Loan.Amount.ToString("N0")</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-full bg-purple-50">
+                                <i class="fas fa-clock h-5 w-5 text-purple-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Duration</p>
+                                <p class="font-medium text-gray-800">@Loan.Duration</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-full bg-green-50">
+                                <i class="fas fa-chart-bar h-5 w-5 text-green-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Interest Rate</p>
+                                <p class="font-medium text-gray-800">@Loan.InterestRate</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-full bg-orange-50">
+                                <i class="fas fa-calendar h-5 w-5 text-orange-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Next Payment</p>
+                                <p class="font-medium text-gray-800">@Loan.NextPayment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loan Details and Client Information -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Loan Details Card -->
+                <div class="border-gray-200 shadow-sm border rounded-lg">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-credit-card h-5 w-5 text-indigo-500"></i>
+                            Loan Details
+                        </h3>
+                    </div>
+                    <div class="p-6 grid gap-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-500">Client Name</label>
+                                <p class="text-gray-800 font-medium">@Loan.ClientName</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-500">Application Date</label>
+                                <p class="text-gray-800 font-medium">@Loan.ApplicationDate</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-500">Purpose</label>
+                                <p class="text-gray-800 font-medium">@Loan.Purpose</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-500">Remaining Balance</label>
+                                <p class="text-gray-800 font-medium">₱@Loan.RemainingBalance.ToString("N0")</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-500">Co-Applicants</label>
+                                <p class="text-gray-800 font-medium">@Loan.CoApplicantNumber</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-500">Guarantors</label>
+                                <p class="text-gray-800 font-medium">@Loan.GuarantorNumber</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-500">Validated By</label>
+                                <p class="text-gray-800 font-medium">@Loan.ValidatedBy</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-500">Client Credit Score</label>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-chart-bar h-4 w-4 @GetCreditScoreColor(Loan.CreditScore)"></i>
+                                    <span class="font-medium @GetCreditScoreTextColor(Loan.CreditScore)">
+                                        @Loan.CreditScore
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Card -->
+                <div class="border-gray-200 shadow-sm border rounded-lg">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            @if (Loan.Status == "Approved")
+                            {
+                                <i class="fas fa-check-circle h-5 w-5 text-green-500"></i>
+                            }
+                            else if (Loan.Status == "Pending")
+                            {
+                                <i class="fas fa-clock h-5 w-5 text-yellow-500"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-exclamation-circle h-5 w-5 text-red-500"></i>
+                            }
+                            Status
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm text-gray-500">Current Status</label>
+                                @if (Loan.Status == "Approved")
+                                {
+                                    <span class="bg-green-100 text-green-800 rounded-full px-2 py-1 text-xs flex items-center gap-1">
+                                        <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                                        @Loan.Status
+                                    </span>
+                                }
+                                else if (Loan.Status == "Pending")
+                                {
+                                    <span class="bg-yellow-100 text-yellow-800 rounded-full px-2 py-1 text-xs flex items-center gap-1">
+                                        <span class="h-2 w-2 rounded-full bg-yellow-500"></span>
+                                        @Loan.Status
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="bg-red-100 text-red-800 rounded-full px-2 py-1 text-xs flex items-center gap-1">
+                                        <span class="h-2 w-2 rounded-full bg-red-500"></span>
+                                        @Loan.Status
+                                    </span>
+                                }
+                            </div>
+                            @if (Loan.Status == "Pending")
+                            {
+                                <div class="space-y-2">
+                                    <label class="text-sm text-gray-500">Actions</label>
+                                    <div class="flex gap-2">
+                                        <button class="border-green-200 text-green-700 hover:bg-green-50 border rounded p-2 text-sm">
+                                            Approve
+                                        </button>
+                                        <button class="border-red-200 text-red-700 hover:bg-red-50 border rounded p-2 text-sm">
+                                            Reject
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                            @if (Loan.Status == "Approved")
+                            {
+                                <div class="space-y-2">
+                                    <label class="text-sm text-gray-500">Next Steps</label>
+                                    <button class="border-blue-200 text-blue-700 hover:bg-blue-50 border rounded p-2 text-sm">
+                                        Generate Contract
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment History Section -->
+            <div class="border-gray-200 shadow-sm border rounded-lg">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-dollar-sign h-5 w-5 text-amber-500"></i>
+                        Payment History
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr class="hover:bg-gray-50">
+                                    <th class="text-gray-600 font-medium p-3 text-left">Date</th>
+                                    <th class="text-gray-600 font-medium p-3 text-left">Amount</th>
+                                    <th class="text-gray-600 font-medium p-3 text-left">Principal</th>
+                                    <th class="text-gray-600 font-medium p-3 text-left">Interest</th>
+                                    <th class="text-gray-600 font-medium p-3 text-left">Remaining Balance</th>
+                                    <th class="text-gray-600 font-medium p-3 text-left">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                    <td class="text-gray-700 p-3">2025-05-15</td>
+                                    <td class="text-gray-700 font-medium p-3">₱5,000</td>
+                                    <td class="text-gray-700 p-3">₱4,167</td>
+                                    <td class="text-gray-700 p-3">₱833</td>
+                                    <td class="text-gray-700 p-3">₱45,833</td>
+                                    <td class="p-3">
+                                        <span class="bg-green-100 text-green-800 rounded-full px-2 py-1 text-xs flex items-center gap-1">
+                                            <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                                            Paid
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-gray-200 flex justify-between w-full">
+            <button class="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 border rounded p-2 flex items-center"
+                    @onclick="DeleteLoan">
+                <i class="fas fa-trash-alt h-4 w-4 mr-2"></i>
+                Delete Loan
+            </button>
+            <div class="flex gap-2">
+                <button class="text-gray-700 border-gray-200 hover:bg-gray-100 hover:text-gray-900 border rounded p-2"
+                        @onclick="OnClose">
+                    Close
+                </button>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white rounded p-2 flex items-center"
+                        @onclick="ProcessPayment">
+                    <i class="fas fa-dollar-sign h-4 w-4 mr-2"></i>
+                    Process Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Loan Loan { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private string GetCreditScoreColor(int score)
+    {
+        return score >= 85 ? "text-green-500" :
+               score >= 70 ? "text-yellow-500" : "text-red-500";
+    }
+
+    private string GetCreditScoreTextColor(int score)
+    {
+        return score >= 85 ? "text-green-600" :
+               score >= 70 ? "text-yellow-600" : "text-red-600";
+    }
+
+    private void DeleteLoan()
+    {
+        Console.WriteLine("Delete loan");
+    }
+
+    private void ProcessPayment()
+    {
+        Console.WriteLine("Process payment");
+    }
+}

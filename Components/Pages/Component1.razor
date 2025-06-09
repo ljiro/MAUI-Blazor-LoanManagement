@@ -1,0 +1,395 @@
+﻿@page "/loans"
+@using System.Globalization
+@attribute [RenderModeServer]
+
+<PageTitle>Loan Management</PageTitle>
+
+<div class="flex min-h-screen w-full bg-gray-50">
+    <!-- Sidebar -->
+    <aside class="hidden w-72 flex-col border-r bg-white border-r-gray-200 sm:flex">
+        <div class="border-b border-gray-200 p-5">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-shield-alt h-8 w-8 text-blue-500"></i>
+                <h2 class="text-2xl font-semibold text-gray-800">Admin Panel</h2>
+            </div>
+        </div>
+        <nav class="flex flex-col gap-1 p-3 text-sm font-medium">
+            <button class="justify-start text-gray-700 hover:bg-gray-100 hover:text-gray-900 p-2 rounded">
+                <i class="fas fa-user-cog mr-3 h-5 w-5"></i> Dashboard
+            </button>
+            <button class="justify-start text-gray-700 hover:bg-gray-100 hover:text-gray-900 p-2 rounded">
+                <i class="fas fa-users mr-3 h-5 w-5"></i> User Management
+            </button>
+            <button class="justify-start text-gray-700 hover:bg-gray-100 hover:text-gray-900 p-2 rounded">
+                <i class="fas fa-user mr-3 h-5 w-5"></i> Clients
+            </button>
+            <button class="justify-start text-gray-900 bg-gray-100 hover:bg-gray-200 p-2 rounded">
+                <i class="fas fa-book mr-3 h-5 w-5"></i> Loans
+            </button>
+            <button class="justify-start text-gray-700 hover:bg-gray-100 hover:text-gray-900 p-2 rounded">
+                <i class="fas fa-file-alt mr-3 h-5 w-5"></i> Reports
+            </button>
+            <button class="justify-start text-gray-700 hover:bg-gray-100 hover:text-gray-900 p-2 rounded">
+                <i class="fas fa-tasks mr-3 h-5 w-5"></i> Loan Products
+            </button>
+            <button class="justify-start text-gray-700 hover:bg-gray-100 hover:text-gray-900 p-2 rounded">
+                <i class="fas fa-cog mr-3 h-5 w-5"></i> System Configuration
+            </button>
+        </nav>
+        <div class="mt-auto p-3 border-t border-gray-200">
+            <button class="w-full justify-start text-gray-700 hover:bg-gray-100 hover:text-gray-900 p-2 rounded">
+                <i class="fas fa-sign-out-alt mr-3 h-5 w-5"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex flex-1 flex-col">
+        <header class="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-6">
+            <h1 class="text-xl font-semibold text-gray-800">Loan Management</h1>
+            <div class="ml-auto flex items-center gap-3">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+                    <input type="search"
+                           placeholder="Search loans..."
+                           class="w-64 rounded-lg bg-gray-50 border-gray-200 pl-8 focus:ring-blue-500 focus:border-blue-500 p-2 border"
+                           @bind="searchText"
+                           @bind:event="oninput" />
+                </div>
+                <button class="border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900 p-2 rounded border flex items-center"
+                        @onclick="ToggleSortOrder">
+                    <i class="fas fa-sort mr-2 h-4 w-4"></i>
+                    @(sortOrder == SortOrder.None ? "Sort" : sortOrder == SortOrder.Ascending ? "A-Z" : "Z-A")
+                </button>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded flex items-center"
+                        @onclick="() => showNewLoanDialog = true">
+                    <i class="fas fa-book mr-2 h-4 w-4"></i> New Loan
+                </button>
+                <div class="flex items-center gap-2 border-l border-gray-200 pl-3">
+                    <div class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-800">
+                        DL
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">David Lee</p>
+                        <p class="text-xs text-gray-500">IT Administrator</p>
+                    </div>
+                    <i class="fas fa-chevron-down h-4 w-4 text-gray-400 cursor-pointer"></i>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 p-6">
+            @if (selectedLoan != null)
+            {
+                <LoanDetailsPanel Loan="@selectedLoan" OnClose="@(() => selectedLoan = null)" />
+            }
+            else
+            {
+                <div class="shadow-sm border-gray-200 border rounded-lg bg-white">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-xl text-gray-800 font-semibold">Active Loans</h2>
+                                <p class="text-gray-500">
+                                    @loans.Count total loans
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button class="border-gray-200 text-gray-700 p-2 rounded border text-sm">
+                                    Export
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                        <th class="text-gray-600 font-medium p-3 text-left">LOAN ID</th>
+                                        <th class="text-gray-600 font-medium p-3 text-left">CLIENT</th>
+                                        <th class="text-gray-600 font-medium p-3 text-left">TYPE</th>
+                                        <th class="text-gray-600 font-medium p-3 text-left">AMOUNT</th>
+                                        <th class="text-gray-600 font-medium p-3 text-left">DATE</th>
+                                        <th class="text-gray-600 font-medium p-3 text-left">STATUS</th>
+                                        <th class="text-gray-600 font-medium p-3 text-left">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var loan in sortedLoans)
+                                    {
+                                        <tr class="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                                            @onclick="() => selectedLoan = loan">
+                                            <td class="font-medium text-gray-800 p-3">@loan.Id</td>
+                                            <td class="text-gray-700 p-3">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-800">
+                                                        @GetInitials(loan.ClientName)
+                                                    </div>
+                                                    <span>@loan.ClientName</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-gray-700 p-3">
+                                                <span class="border-gray-200 text-gray-600 border rounded-full px-2 py-1 text-xs">
+                                                    @loan.Type
+                                                </span>
+                                            </td>
+                                            <td class="text-gray-700 font-medium p-3">₱@loan.Amount.ToString("N0")</td>
+                                            <td class="text-gray-500 p-3">@loan.ApplicationDate</td>
+                                            <td class="p-3">
+                                                @if (loan.Status == "Approved")
+                                                {
+                                                    <span class="bg-green-100 text-green-800 rounded-full px-2 py-1 text-xs flex items-center gap-1">
+                                                        <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                                                        @loan.Status
+                                                    </span>
+                                                }
+                                                else if (loan.Status == "Pending")
+                                                {
+                                                    <span class="bg-yellow-100 text-yellow-800 rounded-full px-2 py-1 text-xs flex items-center gap-1">
+                                                        <span class="h-2 w-2 rounded-full bg-yellow-500"></span>
+                                                        @loan.Status
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="bg-red-100 text-red-800 rounded-full px-2 py-1 text-xs flex items-center gap-1">
+                                                        <span class="h-2 w-2 rounded-full bg-red-500"></span>
+                                                        @loan.Status
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="p-3">
+                                                <div class="flex gap-1">
+                                                    <button class="h-8 w-8 text-blue-500 hover:text-blue-600 rounded-full hover:bg-blue-50"
+                                                            @onclick="@((e) => { e.StopPropagation(); selectedLoan = loan; })">
+                                                        <i class="fas fa-edit h-4 w-4"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+<!-- New Loan Dialog -->
+@if (showNewLoanDialog)
+{
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg w-full max-w-2xl">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl text-gray-800 font-semibold">Create New Loan Application</h2>
+                <p class="text-gray-500">
+                    Fill out the details for the new loan application
+                </p>
+            </div>
+            <div class="p-6 grid gap-4">
+                <div class="grid grid-cols-4 items-center gap-4">
+                    <label class="text-right col-span-1 text-gray-700">
+                        Client
+                    </label>
+                    <select class="col-span-3 bg-gray-50 border-gray-200 focus:ring-blue-500 text-gray-800 border rounded p-2">
+                        <option value="">Select client</option>
+                        <option value="juan">Juan Dela Cruz</option>
+                        <option value="maria">Maria Santos</option>
+                        <option value="pedro">Pedro Reyes</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-4 items-center gap-4">
+                    <label class="text-right col-span-1 text-gray-700">
+                        Co-Applicants
+                    </label>
+                    <input type="number"
+                           min="0"
+                           class="col-span-3 bg-gray-50 border-gray-200 focus:ring-blue-500 text-gray-800 border rounded p-2"
+                           placeholder="Enter number of co-applicants"
+                           @bind="coApplicantNumber" />
+                </div>
+
+                <div class="grid grid-cols-4 items-center gap-4">
+                    <label class="text-right col-span-1 text-gray-700">
+                        Guarantors
+                    </label>
+                    <input type="number"
+                           min="0"
+                           class="col-span-3 bg-gray-50 border-gray-200 focus:ring-blue-500 text-gray-800 border rounded p-2"
+                           placeholder="Enter number of guarantors"
+                           @bind="guarantorNumber" />
+                </div>
+
+                <div class="grid grid-cols-4 items-center gap-4">
+                    <label class="text-right col-span-1 text-gray-700">
+                        Loan Type
+                    </label>
+                    <select class="col-span-3 bg-gray-50 border-gray-200 focus:ring-blue-500 text-gray-800 border rounded p-2">
+                        <option value="">Select loan type</option>
+                        <option value="personal">Personal Loan</option>
+                        <option value="business">Business Loan</option>
+                        <option value="emergency">Emergency Loan</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-4 items-center gap-4">
+                    <label class="text-right col-span-1 text-gray-700">
+                        Amount
+                    </label>
+                    <input type="number"
+                           class="col-span-3 bg-gray-50 border-gray-200 focus:ring-blue-500 text-gray-800 border rounded p-2"
+                           placeholder="Enter loan amount" />
+                </div>
+
+                <div class="grid grid-cols-4 items-center gap-4">
+                    <label class="text-right col-span-1 text-gray-700">
+                        Purpose
+                    </label>
+                    <input class="col-span-3 bg-gray-50 border-gray-200 focus:ring-blue-500 text-gray-800 border rounded p-2"
+                           placeholder="Enter loan purpose" />
+                </div>
+
+                <div class="grid grid-cols-4 items-center gap-4">
+                    <label class="text-right col-span-1 text-gray-700">
+                        Duration
+                    </label>
+                    <select class="col-span-3 bg-gray-50 border-gray-200 focus:ring-blue-500 text-gray-800 border rounded p-2">
+                        <option value="">Select duration</option>
+                        <option value="6">6 months</option>
+                        <option value="12">12 months</option>
+                        <option value="24">24 months</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button class="text-gray-700 border-gray-200 hover:bg-gray-100 hover:text-gray-900 border rounded p-2"
+                        @onclick="() => showNewLoanDialog = false">
+                    Cancel
+                </button>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white rounded p-2">
+                    Create Loan
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private enum SortOrder { None, Ascending, Descending }
+
+    private class Loan
+    {
+        public string Id { get; set; } = string.Empty;
+        public string ClientName { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string Purpose { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public string ApplicationDate { get; set; } = string.Empty;
+        public string Duration { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public string InterestRate { get; set; } = string.Empty;
+        public decimal RemainingBalance { get; set; }
+        public string NextPayment { get; set; } = string.Empty;
+        public string ValidatedBy { get; set; } = string.Empty;
+        public int CreditScore { get; set; }
+        public int CoApplicantNumber { get; set; }
+        public int GuarantorNumber { get; set; }
+    }
+
+    private List<Loan> loans = new()
+    {
+        new Loan {
+            Id = "LN001",
+            ClientName = "Juan Dela Cruz",
+            Type = "Personal Loan",
+            Purpose = "Home Renovation",
+            Amount = 50000,
+            ApplicationDate = "2025-05-15",
+            Duration = "12 months",
+            Status = "Approved",
+            InterestRate = "12%",
+            RemainingBalance = 42000,
+            NextPayment = "2025-06-15",
+            ValidatedBy = "Maria Santos",
+            CreditScore = 85,
+            CoApplicantNumber = 2,
+            GuarantorNumber = 1
+        },
+        new Loan {
+            Id = "LN002",
+            ClientName = "Maria Santos",
+            Type = "Business Loan",
+            Purpose = "Capital Expansion",
+            Amount = 150000,
+            ApplicationDate = "2025-05-20",
+            Duration = "24 months",
+            Status = "Pending",
+            InterestRate = "10%",
+            RemainingBalance = 150000,
+            NextPayment = "N/A",
+            ValidatedBy = "Juan Dela Cruz",
+            CreditScore = 92,
+            CoApplicantNumber = 0,
+            GuarantorNumber = 2
+        },
+        new Loan {
+            Id = "LN003",
+            ClientName = "Pedro Reyes",
+            Type = "Emergency Loan",
+            Purpose = "Medical Expenses",
+            Amount = 30000,
+            ApplicationDate = "2025-05-25",
+            Duration = "6 months",
+            Status = "Active",
+            InterestRate = "15%",
+            RemainingBalance = 25000,
+            NextPayment = "2025-06-25",
+            ValidatedBy = "Ana Lopez",
+            CreditScore = 78,
+            CoApplicantNumber = 1,
+            GuarantorNumber = 1
+        }
+    };
+
+    private string searchText = string.Empty;
+    private Loan? selectedLoan = null;
+    private SortOrder sortOrder = SortOrder.None;
+    private int coApplicantNumber = 0;
+    private int guarantorNumber = 0;
+    private bool showNewLoanDialog = false;
+
+    private IEnumerable<Loan> filteredLoans => loans.Where(loan =>
+        loan.Id.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+        loan.ClientName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+        loan.Status.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<Loan> sortedLoans => sortOrder switch
+    {
+        SortOrder.Ascending => filteredLoans.OrderBy(l => l.ClientName),
+        SortOrder.Descending => filteredLoans.OrderByDescending(l => l.ClientName),
+        _ => filteredLoans
+    };
+
+    private void ToggleSortOrder()
+    {
+        sortOrder = sortOrder switch
+        {
+            SortOrder.None => SortOrder.Ascending,
+            SortOrder.Ascending => SortOrder.Descending,
+            _ => SortOrder.None
+        };
+    }
+
+    private string GetInitials(string name)
+    {
+        var parts = name.Split(' ');
+        return parts.Length >= 2 
+            ? $"{parts[0][0]}{parts[1][0]}" 
+            : name.Length >= 1 ? name[0].ToString() : "";
+    }
+}
